@@ -2,6 +2,8 @@ const User = require('./userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsnowebtoken');
 const { and } = require('sequelize');
+const crypto = require('crypto');
+const { match } = require('assert');
 
 //sign up 
 exports.signup = async (req,res) => {
@@ -46,7 +48,7 @@ exports.login = async (req, res) => {
         if(!isMatch){
             return res.status(400).json({message : 'invalid password'});
         }
-        const token = jwt.sign({ id: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id }, 'jwt_secret', { expiresIn: '1h' });
         res.json({ message: 'Login successful', token });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -74,34 +76,132 @@ exports.viewInfo = async (req , res) => {
 };
 
 //logout 
-exports.logout = async (req,res) => {
-
+exports.logout =  (req,res) => {
 };
 
-//update user
-exports.updateUser = async (req,res)=>{
+//update Account 
+exports.updateAC = async (req,res)=>{
+    try{
+    const userId = req.params.id;
+    const { name, UserName, email, password } = req.body;
+    const user = await user.findByPk(userId);
+
+    if(!user){
+     return res.status(404).json({message:'user not found'});
+    }
+    
+    if (password){
+    const HashPass = await bcrypt.hash(password,10);
+    user.password= HashPass;
+    }
+
+    if (user) user.name = user || user.name ;
+    if (UserName) user.UserName = UserName || user.UserName ;
+    if (email) user.email = email || user.email ;
+
+    await user.save();
+
+    res.status(201).json({message:'Info was updated successfully',user});
+} catch (error){
+    res.status(500).json({message:'server error',error});
+}
 
 };
 
 //delete user
 exports.deleteUser = async (req,res) => {
+    try{
+        const userId = req.user.id; 
+        const user = await user.findByPk(userId);
+        if(!user){
+            return res.status(404).json({message:'user not found'});
+        }
+
+       await user.destory();
+
+       res.status(200).json({message:'Your account has been deleted'});  
+    }catch(error){
+        res.status(500).json({message:'somthing went wrong while deleting your account'});
+    };
 
 };
 
 //change password 
-exports.changePass = async (req,res) => { 
+exports.changePass = async (req,res) => {
+    try{ 
+    userId = req.user.id;
+    const {currentPassword , NewPassword } = req.body;
 
+    const user = await user.findByPk(userId);
+    if(!user){
+        res.status(404).json({message:'user not found'});
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword , user.password);
+    if (isMatch){
+        res.status(400).json({message:'incorrect password'});
+    }
+
+
+    const NewPass = await bcrypt(password,10);
+    password = NewPass ;
+    await user.save();
+
+    res.status(200).json({message:'changed password successfully'});
+} catch(error){
+    req.status(500).json({message:'somthing went wrong'});
+}
 };
 
 //forget password 
 exports.forgetPass = async (req ,res) => {
+    try{
+            const {email} = req.body;
+            const user = await user.findOne({where:{email}});
+            if (!user){
+                res.status(404).json({message:'user not found'});
+             }
+            
+            const resetcode = Math.floor(100000 + Math.random() *900000).toString();
+            const resetToken = crypto.createHash("sha256").update(resetcode).digest("hex");
 
+            user.resetToken = resetToken ;
+            user.resetTokenExpiry = Date.now() + 10 * 60 * 1000;
+            await user.save();
+
+            // send code to email
+            console.log('reset code for you password : ${resetcode}');
+
+            res.status(200).json({ message: "Reset code sent to email" });
+        } catch (error) {
+          res.status(500).json({ message: "Something went wrong" });
+        }
 };
 
-//reset password 
+// reset password
 exports.resetPass = async (req, res) => {
-
-};
+    try {
+      const { email, resetCode, newPassword } = req.body;
+      const user = await User.findOne({ where: { email } });
+  
+      if (!user) return res.status(404).json({ message: "User not found" });
+  
+      const hashedCode = crypto.createHash("sha256").update(resetCode).digest("hex");
+  
+      if (user.resetToken !== hashedCode || Date.now() > user.resetTokenExpiry) {
+        return res.status(400).json({ message: "Invalid or expired code" });
+      }
+  
+      user.password = await bcrypt.hash(newPassword, 10);
+      user.resetToken = null;
+      user.resetTokenExpiry = null;
+      await user.save();
+  
+      res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Something went wrong" });
+    }
+  };
 
 //verify email 
 exports.verifyEmail = async (req, res) =>{
@@ -115,20 +215,5 @@ exports.blockUser = async (req, res) => {
 
 //unblock user 
 exports.unblock = async (req, res) => {
-
-};
-
-//assign rule 
-exports.assignRule = async (req, res) => {
-
-};
-
-//upload profile picture
-exports.profPicture = async (req, res) => {
-
-};
-
-//refresh token
-exports.reToken = async (req, res) => {
 
 };
