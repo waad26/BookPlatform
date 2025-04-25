@@ -1,4 +1,5 @@
 const Review = require('./reviewModel');
+const sanitizeHtml = require('sanitize-html');
 
 // Get all reviews
 exports.getAllReviews = async (req, res) => {
@@ -16,9 +17,10 @@ exports.getAllReviews = async (req, res) => {
 // Create a new review
 exports.createReview = async (req, res) => {
   try {
-    const { title, content, rating } = req.body;
+    let { title, content, rating } = req.body;
 
-    
+  title = sanitizeHtml(title, { allowedTags: [], allowedAttributes: {} });
+  content = sanitizeHtml(content, { allowedTags: [], allowedAttributes: {} });
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized: Login required' });
