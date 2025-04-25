@@ -18,6 +18,8 @@
   "homepage": "https://github.com/waad26/BookPlatform#readme",
   "description": "",
   "dependencies": {
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
     "mysql2": "^3.14.0",
     "sequelize": "^6.37.7"
   }
