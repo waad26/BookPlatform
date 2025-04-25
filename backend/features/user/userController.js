@@ -204,16 +204,62 @@ exports.resetPass = async (req, res) => {
   };
 
 //verify email 
-exports.verifyEmail = async (req, res) =>{
+exports.verifyEmail = async (req, res) => {
+    try {
+      const { token } = req.params;
+      const user = await User.findOne({ where: { emailVerificationToken: token } });
+  
+      if (!user) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+  
+      user.isVerified = true;
+      user.emailVerificationToken = null; 
+      await user.save();
+  
+      res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  
 
-};
+// block user
+exports.blockUser = async (req, res) => {
+    try {
+      const { userId } = req.params;  
+  
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      user.isBlocked = true;  
+      await user.save();
+  
+      res.status(200).json({ message: `User ${user.name} has been blocked.` });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  
 
-//block user
-exports.blockUser = async (req, res) => { 
-
-};
-
-//unblock user 
+// unblock user
 exports.unblock = async (req, res) => {
-
-};
+    try {
+      const { userId } = req.params;
+  
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      user.isBlocked = false;
+      await user.save();
+  
+      res.status(200).json({ message: `User ${user.name} has been unblocked.` });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  
