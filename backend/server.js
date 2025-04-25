@@ -4,8 +4,10 @@ const app = express();
 const port = 3000;
 
 const authenticate = require('./middleware/auth');
+const reviewRoutes = require('./features/review/reviewRoutes');
 
 app.use(express.json());
+app.use('/api/reviews', reviewRoutes);
 
 app.get('/protected', authenticate, (req, res) => {
     res.send('This is a protected route!');
