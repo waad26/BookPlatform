@@ -28,9 +28,32 @@ const User = sequelize.define('User',
     role : {
         type: DataTypes.STRING,
         defaultValue :'user'
-    }
+    },
 
+    isVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
 
+    emailVerificationToken: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+
+    isBlocked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+
+    resetToken: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+
+    resetTokenExpiry: {
+        type: DataTypes.DATE,
+        allowNull: true
+      }
   }
     );
 
