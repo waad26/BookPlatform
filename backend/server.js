@@ -5,7 +5,7 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 
 const userRoutes = require("./features/user/userRoutes");
-const bookRoutes = require("./features/book/bookRoutes");
+const bookRoutes = require("./features/books/bookRoutes");
 const reviewRoutes = require("./features/review/reviewRoutes");
 
 const app = express();
@@ -13,8 +13,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const authenticate = require('./middleware/auth');
-const reviewRoutes = require('./features/review/reviewRoutes');
-
 
 app.use(cors());
 app.use(express.json());

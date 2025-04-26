@@ -24,7 +24,7 @@ router.post(
       .withMessage("Password must be at least 6 characters"),
   ],
   validate,
-  userController.registerUser
+  userController.signup
 );
 
 // Login

@@ -1,6 +1,6 @@
 const User = require('./userModel');
 const bcrypt = require('bcrypt');
-const jwt = require('jsnowebtoken');
+const jwt = require('jsonwebtoken');
 const { and } = require('sequelize');
 const crypto = require('crypto');
 const { match } = require('assert');
@@ -10,12 +10,12 @@ const isAdmin = (req) => req.user && req.user.role === 'admin';
 //sign up 
 exports.signup = async (req,res) => {
     try {
-        const {name , UserName , email , password} = req.body;
+        const {name , username , email , password} = req.body;
 
         // check if the user is already have account
         const existUser = await User.findOne({where:{email}});
         if (existUser){
-            return res.statuse(400).json({message :'User already exists' });
+            return res.status(400).json({message :'User already exists' });
         }// end try 
 
         //encryption
@@ -24,7 +24,7 @@ exports.signup = async (req,res) => {
         //sign up (new account)
         const user = await User.create ({
             name,
-            UserName,
+            username,
             email,
             password: HashPass ,
         });
@@ -81,7 +81,7 @@ exports.viewInfo = async (req , res) => {
             return res.status(404).json({message: 'User not found'});
         }
 
-        res.jsonb(user);
+        res.json(user);
     }catch (error){
         res.status(500).json({message : error.message});
 
@@ -138,7 +138,7 @@ exports.deleteUser = async (req,res) => {
             return res.status(404).json({message:'user not found'});
         }
 
-       await user.destory();
+       await user.destroy();
 
        res.status(200).json({message:'Your account has been deleted'});  
     }catch(error){
@@ -150,7 +150,7 @@ exports.deleteUser = async (req,res) => {
 //change password 
 exports.changePass = async (req,res) => {
     try{ 
-    userId = req.user.id;
+    const userId = req.user.id;
     const {currentPassword , NewPassword } = req.body;
 
     const user = await user.findByPk(userId);
@@ -159,13 +159,14 @@ exports.changePass = async (req,res) => {
     }
 
     const isMatch = await bcrypt.compare(currentPassword , user.password);
-    if (isMatch){
-        res.status(400).json({message:'incorrect password'});
-    }
+    if (!isMatch){
+      return res.status(400).json({message:'incorrect password'});
+  }
+  
 
 
-    const NewPass = await bcrypt(password,10);
-    password = NewPass ;
+    const NewPass = await bcrypt.hash(NewPassword, 10);
+    user.password = NewPass;
     await user.save();
 
     res.status(200).json({message:'changed password successfully'});
