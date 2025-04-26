@@ -1,12 +1,14 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
 
+// Model with Integrity & Validation
 const Review = sequelize.define('Review', {
   title: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      notEmpty: true
+      notEmpty: true,
+      len: [3, 255]
     }
   },
   content: {
@@ -14,7 +16,7 @@ const Review = sequelize.define('Review', {
     allowNull: false,
     validate: {
       notEmpty: true,
-      len: [10, 1000] 
+      len: [10, 5000]
     }
   },
   rating: {
@@ -30,7 +32,8 @@ const Review = sequelize.define('Review', {
     allowNull: false
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  paranoid: true  // Soft deletes for better data integrity (A08)
 });
 
 module.exports = Review;
