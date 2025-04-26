@@ -9,30 +9,42 @@ const bookRoutes = require("./features/books/bookRoutes");
 const reviewRoutes = require("./features/review/reviewRoutes");
 
 const app = express();
-// update port 
+
+// Update port
 const PORT = process.env.PORT || 5000;
 
+// Authentication middleware
 const authenticate = require('./middleware/auth');
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/api/reviews', reviewRoutes);
 
+// Rate limiter for login (protect login route)
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
+  windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5,
   message: "Too many login attempts, please try again later.",
 });
 app.use("/api/users/login", loginLimiter);
 
+// Rate limiter for reviews (protect reviews route)
+const reviewLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  message: "Too many review submissions, please try again later."
+});
+app.use("/api/reviews", reviewLimiter, reviewRoutes);
+
+// Routes
 app.use("/api/users", userRoutes);
 app.use("/api/books", bookRoutes);
-app.use("/api/reviews", reviewRoutes);
 
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log('Server running on port ${PORT}');
 });
