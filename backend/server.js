@@ -9,10 +9,16 @@ const bookRoutes = require("./features/book/bookRoutes");
 const reviewRoutes = require("./features/review/reviewRoutes");
 
 const app = express();
+// update port 
 const PORT = process.env.PORT || 5000;
+
+const authenticate = require('./middleware/auth');
+const reviewRoutes = require('./features/review/reviewRoutes');
+
 
 app.use(cors());
 app.use(express.json());
+app.use('/api/reviews', reviewRoutes);
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
