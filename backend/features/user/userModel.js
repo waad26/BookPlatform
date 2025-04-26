@@ -6,32 +6,42 @@ const bcrypt = require("bcryptjs");
 const User = sequelize.define('User',
   {
     name : {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull : false
     },
     
-    UserName : {
-        type : DataTypes.STRING,
-        allowNull : false ,
-        unique : true
-    },
+    username: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      unique: true
+  },
+  
 
-    email : {
-        type : DataTypes.STRING,
-        allowNull : false,
-        unique : true
-    },
+    email: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true
+        }
+      },
 
-    password : {
-        type : DataTypes.STRING,
-        allowNull : false
-    }, 
-
-    role : {
+      password: {
         type: DataTypes.STRING,
-        defaultValue :'user'
-    },
+        allowNull: false,
+        validate: {
+          len: [8, 100]
+        }
+      },
 
+      role: {
+        type: DataTypes.STRING,
+        defaultValue: 'user',
+        validate: {
+          isIn: [['user', 'admin', 'blocked']]
+        }
+      },
+    
     isVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
@@ -52,12 +62,17 @@ const User = sequelize.define('User',
         allowNull: true
       },
 
-    resetTokenExpiry: {
+      resetTokenExpiry: {
         type: DataTypes.DATE,
         allowNull: true
       }
-  }
-    );
+  
+    },
+    
+    {
+      timestamps: true 
+    }
+  );
 
     User.beforeCreate(async (user) => {
         const salt = await bcrypt.genSalt(10);

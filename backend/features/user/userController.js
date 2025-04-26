@@ -1,19 +1,21 @@
 const User = require('./userModel');
 const bcrypt = require('bcrypt');
-const jwt = require('jsnowebtoken');
+const jwt = require('jsonwebtoken');
 const { and } = require('sequelize');
 const crypto = require('crypto');
 const { match } = require('assert');
 
+const isAdmin = (req) => req.user && req.user.role === 'admin';
+
 //sign up 
 exports.signup = async (req,res) => {
     try {
-        const {name , UserName , email , password} = req.body;
+        const {name , username , email , password} = req.body;
 
         // check if the user is already have account
         const existUser = await User.findOne({where:{email}});
         if (existUser){
-            return res.statuse(400).json({message :'User already exists' });
+            return res.status(400).json({message :'User already exists' });
         }// end try 
 
         //encryption
@@ -22,7 +24,7 @@ exports.signup = async (req,res) => {
         //sign up (new account)
         const user = await User.create ({
             name,
-            UserName,
+            username,
             email,
             password: HashPass ,
         });
@@ -35,23 +37,34 @@ exports.signup = async (req,res) => {
 };
 
 // login 
-exports.login = async (req, res) => {
+exports.loginUser = async (req, res) => {
     try {
-        const {email, password } = req.body ;
-
-        const user = await user.findOne({where : {email}});
-        if(!user){
-            return res.status(400).json({message: 'invalid email'});
-        } 
-
-        const isMatch = await bcrypt.compare(password,user.password);
-        if(!isMatch){
-            return res.status(400).json({message : 'invalid password'});
-        }
-        const token = jwt.sign({ id: user.id }, 'jwt_secret', { expiresIn: '1h' });
-        res.json({ message: 'Login successful', token });
+      const { email, password } = req.body;
+  
+      const user = await User.findOne({ where: { email } });
+  
+      if (!user) {
+        console.warn(`Failed login attempt for email: ${email} at ${new Date().toISOString()}`);
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+  
+      const isMatch = await bcrypt.compare(password, user.password);
+  
+      if (!isMatch) {
+        console.warn(`Failed login attempt for email: ${email} at ${new Date().toISOString()}`);
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+  
+      const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+  
+      console.log(`User logged in: ${user.email} at ${new Date().toISOString()}`);
+  
+      res.status(200).json({ token });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      console.error("Login error:", error.message);
+      res.status(500).json({ message: "Server error" });
     }
   };
 
@@ -68,7 +81,7 @@ exports.viewInfo = async (req , res) => {
             return res.status(404).json({message: 'User not found'});
         }
 
-        res.jsonb(user);
+        res.json(user);
     }catch (error){
         res.status(500).json({message : error.message});
 
@@ -76,9 +89,17 @@ exports.viewInfo = async (req , res) => {
 };
 
 //logout 
-exports.logout =  (req,res) => {
-};
-
+exports.logoutUser = (req, res) => {
+    try {
+      console.log(`User ${req.user.email} logged out at ${new Date().toISOString()}`);
+      res.clearCookie("token"); 
+      res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout error:", error.message);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  
 //update Account 
 exports.updateAC = async (req,res)=>{
     try{
@@ -117,7 +138,7 @@ exports.deleteUser = async (req,res) => {
             return res.status(404).json({message:'user not found'});
         }
 
-       await user.destory();
+       await user.destroy();
 
        res.status(200).json({message:'Your account has been deleted'});  
     }catch(error){
@@ -129,7 +150,7 @@ exports.deleteUser = async (req,res) => {
 //change password 
 exports.changePass = async (req,res) => {
     try{ 
-    userId = req.user.id;
+    const userId = req.user.id;
     const {currentPassword , NewPassword } = req.body;
 
     const user = await user.findByPk(userId);
@@ -138,13 +159,14 @@ exports.changePass = async (req,res) => {
     }
 
     const isMatch = await bcrypt.compare(currentPassword , user.password);
-    if (isMatch){
-        res.status(400).json({message:'incorrect password'});
-    }
+    if (!isMatch){
+      return res.status(400).json({message:'incorrect password'});
+  }
+  
 
 
-    const NewPass = await bcrypt(password,10);
-    password = NewPass ;
+    const NewPass = await bcrypt.hash(NewPassword, 10);
+    user.password = NewPass;
     await user.save();
 
     res.status(200).json({message:'changed password successfully'});
@@ -207,6 +229,7 @@ exports.resetPass = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
     try {
       const { token } = req.params;
+  
       const user = await User.findOne({ where: { emailVerificationToken: token } });
   
       if (!user) {
@@ -214,44 +237,58 @@ exports.verifyEmail = async (req, res) => {
       }
   
       user.isVerified = true;
-      user.emailVerificationToken = null; 
+      user.emailVerificationToken = null;
       await user.save();
   
-      res.status(200).json({ message: "Email verified successfully" });
+      res.status(200).json({ message: "Email verified successfully." });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.error("Verify Email Error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-  };
-  
+  }; 
 
 // block user
 exports.blockUser = async (req, res) => {
     try {
-      const { userId } = req.params;  
+      const { userId } = req.params;
   
-      const user = await User.findByPk(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!isAdmin(req)) {
+        return res.status(403).json({ message: "Access denied." });
       }
   
-      user.isBlocked = true;  
+      const user = await User.findByPk(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+  
+      if (user.id === req.user.id) {
+        return res.status(400).json({ message: "You cannot block yourself." });
+      }
+  
+      user.isBlocked = true;
       await user.save();
   
       res.status(200).json({ message: `User ${user.name} has been blocked.` });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.error("Block User Error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-  };
+  }
   
-
 // unblock user
 exports.unblock = async (req, res) => {
     try {
       const { userId } = req.params;
   
+      if (!isAdmin(req)) {
+        return res.status(403).json({ message: "Access denied." });
+      }
+  
       const user = await User.findByPk(userId);
+  
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "User not found." });
       }
   
       user.isBlocked = false;
@@ -259,7 +296,8 @@ exports.unblock = async (req, res) => {
   
       res.status(200).json({ message: `User ${user.name} has been unblocked.` });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.error("Unblock User Error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   };
   
