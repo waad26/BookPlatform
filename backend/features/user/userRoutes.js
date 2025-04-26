@@ -13,6 +13,7 @@ const validate = (req, res, next) => {
   next();
 };
 
+// Register
 router.post(
   "/register",
   [
@@ -26,6 +27,7 @@ router.post(
   userController.registerUser
 );
 
+// Login
 router.post(
   "/login",
   [
@@ -36,8 +38,22 @@ router.post(
   userController.loginUser
 );
 
+// log out
+router.post("/logout", authenticateToken, userController.logoutUser);
+
+// Protected profile route
 router.get("/profile", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected profile route", user: req.user });
 });
+
+// Verify email
+router.get("/verify/:token", userController.verifyEmail);
+
+// Block user (admin only)
+router.put("/block/:userId", authenticateToken, userController.blockUser);
+
+// Unblock user (admin only)
+router.put("/unblock/:userId", authenticateToken, userController.unblock);
+
 
 module.exports = router;
