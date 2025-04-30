@@ -11,7 +11,7 @@ const reviewRoutes = require("./features/review/reviewRoutes");
 const app = express();
 
 // Update port
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Authentication middleware
 const authenticate = require('./middleware/auth');

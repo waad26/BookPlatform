@@ -7,6 +7,11 @@ const { match } = require('assert');
 
 const isAdmin = (req) => req.user && req.user.role === 'admin';
 
+const validateEmail = (email) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+};
+
 //sign up 
 exports.signup = async (req,res) => {
     try {
@@ -73,7 +78,7 @@ exports.viewInfo = async (req , res) => {
     try {
         const userId = req.params.id;
 
-        const user = await user.findByPk(userId,{
+        const user = await User.findByPk(userId,{
             attributes: {exclude:['password']},
         });
 
@@ -105,7 +110,7 @@ exports.updateAC = async (req,res)=>{
     try{
     const userId = req.params.id;
     const { name, UserName, email, password } = req.body;
-    const user = await user.findByPk(userId);
+    const user = await User.findByPk(userId);
 
     if(!user){
      return res.status(404).json({message:'user not found'});
@@ -133,7 +138,7 @@ exports.updateAC = async (req,res)=>{
 exports.deleteUser = async (req,res) => {
     try{
         const userId = req.user.id; 
-        const user = await user.findByPk(userId);
+        const user = await User.findByPk(userId);
         if(!user){
             return res.status(404).json({message:'user not found'});
         }
@@ -153,7 +158,7 @@ exports.changePass = async (req,res) => {
     const userId = req.user.id;
     const {currentPassword , NewPassword } = req.body;
 
-    const user = await user.findByPk(userId);
+    const user = await User.findByPk(userId);
     if(!user){
         res.status(404).json({message:'user not found'});
     }
@@ -179,7 +184,7 @@ exports.changePass = async (req,res) => {
 exports.forgetPass = async (req ,res) => {
     try{
             const {email} = req.body;
-            const user = await user.findOne({where:{email}});
+            const user = await User.findOne({where:{email}});
             if (!user){
                 res.status(404).json({message:'user not found'});
              }
@@ -300,4 +305,8 @@ exports.unblock = async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   };
+  
+  module.exports ={
+    validateEmail
+  } ;
   

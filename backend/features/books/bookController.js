@@ -1,4 +1,4 @@
-const Book = require('../models/BookModel');
+const Book = require('./bookModel');
 
 
 function handleError(res, error) {

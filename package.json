@@ -2,8 +2,8 @@
   "name": "bookplatform",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+ "scripts": {
+  "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -28,5 +28,9 @@
     "mysql2": "^3.14.0",
     "sanitize-html": "^2.16.0",
     "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
+
 }

@@ -15,7 +15,7 @@ const validate = (req, res, next) => {
 
 // Register
 router.post(
-  "/register",
+  "/signup",
   [
     body("username").notEmpty().withMessage("Username is required"),
     body("email").isEmail().withMessage("Email is invalid"),

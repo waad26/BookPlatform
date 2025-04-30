@@ -15,6 +15,6 @@ sequelize.authenticate()
     const errorLogPath = path.join(__dirname, 'error.log');
     const errorMessage = `[${new Date().toISOString()}] Database connection error: ${err.message}\n`;
     
-    fs.appendFileSync(errorLogPath, errorMessage); // نسجل الخطأ في ملف
-    console.error('Database connection failed. Check error.log for details.'); // ما نطبع تفاصيل الخطأ في الكونسول
+    fs.appendFileSync(errorLogPath, errorMessage);
+    console.error('Database connection failed. Check error.log for details.'); 
   });
