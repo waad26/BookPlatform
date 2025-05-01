@@ -13,10 +13,11 @@ const validate = (req, res, next) => {
   next();
 };
 
-// Register
+// sign up
 router.post(
   "/signup",
   [
+    body("name").notEmpty().withMessage("name is required"),
     body("username").notEmpty().withMessage("Username is required"),
     body("email").isEmail().withMessage("Email is invalid"),
     body("password")

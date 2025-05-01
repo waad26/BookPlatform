@@ -3,7 +3,7 @@ const sanitizeHtml = require('sanitize-html');
 
 // Custom Error Logger (A09 - Logging)
 const logError = (error) => {
-  console.error('[ERROR] ${new Date().toISOString()}: ${error.message}');
+  console.error(`[ERROR] ${new Date().toISOString()}: ${error.message}`);
 };
 
 // Get all reviews (Public)
