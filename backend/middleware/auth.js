@@ -2,9 +2,10 @@ const jwt = require("jsonwebtoken");
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
+  console.log('JWT:',process.env.JWT_SECRET);
   
   if (!authHeader || !authHeader.startsWith("Bearer")) {
-    return res.status(401).json({ message: "Access token is missing or invalid." });
+    return res.status(401).json({ message: "Unauthorized. Please log in first." });
   }
 
   const token = authHeader.split(" ")[1];

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Details</title>
+  <link rel="stylesheet" href="css/bookDetails.css" />
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <img src="assets/book.gif" alt="Logo" class="logo">
+      <h1>Book Platform</h1>
+    </div>
+    <nav class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="add-book.html">Add Book</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="bookInfo" class="book-info"></section>
+
+    <section class="reviews-section">
+      <h2>Reviews</h2>
+      <div id="reviewsList" class="reviews-list"></div>
+
+      <div class="add-review">
+        <h3>Add Your Review</h3>
+        <textarea id="reviewInput" placeholder="Write your review here..."></textarea>
+        <button id="submitReview">Submit</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/bookDetails.js"></script>
+</body>
+</html>

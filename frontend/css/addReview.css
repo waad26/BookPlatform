@@ -1,0 +1,22 @@
+body {
+    background-color: #b2c5de;
+    font-family: sans-serif;
+  }
+  
+  .review-form {
+    width: 400px;
+    margin: 60px auto;
+    background: #7a99b3;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px #84848d;
+  }
+  
+  .review-form textarea,
+  .review-form input,
+  .review-form button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+  }
+  

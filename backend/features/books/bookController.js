@@ -1,115 +1,80 @@
-const Book = require('./bookModel');
-
+const BookService = require('./bookModel');
 
 function handleError(res, error) {
-  console.error(error.message); 
-  res.status(500).json({ message: 'Something went wrong, please try again later.' });
+  console.error(error.message);
+  res.status(500).json({ message: 'Something went wrong' });
 }
 
-// Get all books
-async function getAllBooks(req, res) {
+exports.getAllBooks = async (req, res) => {
   try {
-    const books = await Book.getAllBooks();
-    res.status(200).json(books);
-  } catch (error) {
-    handleError(res, error);
+    const books = await BookService.getAllBooks();
+    res.json(books);
+  } catch (err) {
+    handleError(res, err);
   }
-}
+};
 
-// Get book by ID
-async function getBookById(req, res) {
-  const { id } = req.params;
-
-  if (!id || isNaN(id)) {
-    return res.status(400).json({ message: 'Invalid book ID.' });
-  }
-
+exports.getBookById = async (req, res) => {
   try {
-    const book = await Book.getBookById(id);
-    if (book) {
-      res.status(200).json(book);
-    } else {
-      res.status(404).json({ message: 'Book not found.' });
+    const book = await BookService.getBookById(req.params.id); 
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
     }
+    res.json(book);
   } catch (error) {
-    handleError(res, error);
+    console.error('Error fetching book by ID:', error.message);
+    res.status(500).json({ message: 'Server error' });
   }
-}
+};
 
-// Add a new book
-async function addBook(req, res) {
-  const bookData = req.body;
+exports.addBook = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
+  const { title, author, isbn, description } = req.body;
+  const coverImage = req.file ? req.file.filename : null;
 
   try {
-    const newBookId = await Book.addBook(bookData);
-    res.status(201).json({ message: 'Book added successfully.', id: newBookId });
-  } catch (error) {
-    res.status(400).json({ message: error.message }); 
+    const id = await BookService.addBook({ title, author, isbn, description, coverImage });
+    res.status(201).json({ message: 'Book added', id });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-}
+};
 
-// Update a book
-async function updateBook(req, res) {
+exports.updateBook = async (req, res) => {
   const { id } = req.params;
-  const updatedData = req.body;
-
-  if (!id || isNaN(id)) {
-    return res.status(400).json({ message: 'Invalid book ID.' });
-  }
+  if (!id || isNaN(id)) return res.status(400).json({ message: 'Invalid ID' });
 
   try {
-    const result = await Book.updateBook(id, updatedData);
-    if (result.affectedRows > 0) {
-      res.status(200).json({ message: 'Book updated successfully.' });
-    } else {
-      res.status(404).json({ message: 'Book not found.' });
-    }
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+    const count = await BookService.updateBook(id, req.body);
+    count > 0
+      ? res.json({ message: 'Updated successfully' })
+      : res.status(404).json({ message: 'Book not found' });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-}
+};
 
-// Delete a book
-async function deleteBook(req, res) {
+exports.deleteBook = async (req, res) => {
   const { id } = req.params;
-
-  if (!id || isNaN(id)) {
-    return res.status(400).json({ message: 'Invalid book ID.' });
-  }
+  if (!id || isNaN(id)) return res.status(400).json({ message: 'Invalid ID' });
 
   try {
-    const result = await Book.deleteBook(id);
-    if (result.affectedRows > 0) {
-      res.status(200).json({ message: 'Book deleted successfully.' });
-    } else {
-      res.status(404).json({ message: 'Book not found.' });
-    }
-  } catch (error) {
-    handleError(res, error);
+    const count = await BookService.deleteBook(id);
+    count > 0
+      ? res.json({ message: 'Deleted successfully' })
+      : res.status(404).json({ message: 'Book not found' });
+  } catch (err) {
+    handleError(res, err);
   }
-}
+};
 
-// Search for books
-async function searchBooks(req, res) {
+exports.searchBooks = async (req, res) => {
   const { keyword } = req.query;
-
-  if (!keyword || typeof keyword !== 'string') {
-    return res.status(400).json({ message: 'Invalid search keyword.' });
-  }
-
   try {
-    const books = await Book.searchBooks(keyword);
-    res.status(200).json(books);
-  } catch (error) {
-    handleError(res, error);
+    const books = await BookService.searchBooks(keyword);
+    res.json(books);
+  } catch (err) {
+    handleError(res, err);
   }
-}
-
-module.exports = {
-  getAllBooks,
-  getBookById,
-  addBook,
-  updateBook,
-  deleteBook,
-  searchBooks
 };

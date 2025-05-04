@@ -23,6 +23,7 @@ const Review = sequelize.define('Review', {
     allowNull: false
   }
 }, {
+  tableName:'reviews',
   timestamps: true,
   paranoid: true  // soft delete
 });

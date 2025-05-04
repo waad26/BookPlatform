@@ -1,0 +1,97 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f4e3;
+  color: #333;
+}
+
+header {
+  background-color: #4a3f35;
+  color: #fff;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo {
+  width: 90px;
+  height: 90px;
+}
+
+.nav-links a {
+  color: #fff;
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  padding: 2rem;
+}
+
+.book-info {
+  display: flex;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.book-info img {
+  width: 200px;
+  height: auto;
+  margin-right: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.book-details-text {
+  flex-grow: 1;
+}
+
+.book-details-text h2 {
+  margin-top: 0;
+  font-size: 1.8rem;
+  color: #6b4f3b;
+}
+
+.reviews-section {
+  margin-top: 2rem;
+  background-color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+}
+
+.add-review textarea {
+  width: 100%;
+  height: 100px;
+  margin-top: 10px;
+  font-family: 'Georgia', serif;
+  font-size: 1rem;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.add-review button {
+  background-color: #6b4f3b;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  margin-top: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}

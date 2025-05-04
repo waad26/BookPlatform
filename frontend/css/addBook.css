@@ -1,0 +1,74 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url('../assets/bg-books.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background-color: rgba(255, 248, 240, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(100, 50, 20, 0.3);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+h1 {
+  color: #5b3b1e;
+  margin-bottom: 20px;
+}
+
+input[type="text"],
+textarea,
+input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #fff8f0;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+button {
+  background-color: #8b5e3c;
+  color: white;
+  padding: 12px;
+  width: 100%;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #6f4325;
+}
+
+label {
+  font-weight: bold;
+  color: #5b3b1e;
+  display: inline-block;
+  margin-bottom: 8px;
+  text-align: left;
+  width: 100%;
+  font-size: 14px;
+}
+
+#message {
+  margin-top: 15px;
+  color: green;
+}

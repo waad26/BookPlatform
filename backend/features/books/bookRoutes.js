@@ -1,23 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const BookController = require('./bookController');
+const authenticateToken = require('../../middleware/auth');
+const multer = require('multer');
+const path = require('path');
 
-// Get all books
+// إعداد multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
+const upload = multer({ storage });
+
+// Routes
 router.get('/books', BookController.getAllBooks);
-
-// Get a single book by ID
 router.get('/books/:id', BookController.getBookById);
-
-// Add a new book
-router.post('/books', BookController.addBook);
-
-// Update an existing book
-router.put('/books/:id', BookController.updateBook);
-
-// Delete a book
-router.delete('/books/:id', BookController.deleteBook);
-
-// Search for books
 router.get('/books/search', BookController.searchBooks);
+router.post('/add', authenticateToken, upload.single('coverImage'), BookController.addBook);
+router.put('/books/:id', BookController.updateBook);
+router.delete('/books/:id', BookController.deleteBook);
 
 module.exports = router;

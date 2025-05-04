@@ -60,6 +60,9 @@ exports.updateReview = async (req, res) => {
     const { title, content, rating } = req.body;
     const reviewId = req.params.id;
 
+    console.log('Review ID:', reviewId);
+    console.log('User:', req.user);
+
     const review = await Review.findByPk(reviewId);
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
@@ -76,10 +79,11 @@ exports.updateReview = async (req, res) => {
     await review.save();
     res.status(200).json({ message: 'Review updated successfully', review });
   } catch (error) {
-    logError(error);
+    console.error('Update Error:', error); // مهم جداً
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Delete a review
 exports.deleteReview = async (req, res) => {
@@ -100,5 +104,14 @@ exports.deleteReview = async (req, res) => {
   } catch (error) {
     logError(error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.getReviewsByBook = async (req, res) => {
+  try {
+    const reviews = await Review.find({ bookId: req.params.bookId });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching reviews by book ID' });
   }
 };

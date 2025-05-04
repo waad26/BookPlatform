@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Book</title>
+  <link rel="stylesheet" href="css/addBook.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Add a New Book</h1>
+    <form id="addBookForm" enctype="multipart/form-data">
+      <input type="text" id="title" name="title" placeholder="Book Title" required />
+      <input type="text" id="author" name="author" placeholder="Author" required />
+      <input type="text" id="isbn" name="isbn" placeholder="ISBN" required />
+      <textarea id="description" name="description" placeholder="Short Description" required></textarea>
+      <label for="coverImage">Upload Cover Image:</label>
+      <input type="file" id="coverImage" name="coverImage" accept="image/*" required />
+      <button type="submit">Add Book</button>
+    </form>
+    <p id="message"></p>
+  </div>
+
+  <script src="js/addBook.js"></script>
+</body>
+</html>
