@@ -54,6 +54,41 @@ exports.createReview = async (req, res) => {
   }
 };
 
+
+exports.createReviewForBook = async (req, res) => {
+  try {
+    const { content , rating} = req.body;
+    const bookId = req.params.bookId;
+
+    if (!content || !rating ) {
+      return res.status(400).json({ message: 'Review content or rating is required' });
+    }
+
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Unauthorized: Login required' });
+    }
+
+    const userId = req.user.id;
+
+    const review = await Review.create({
+      title: 'Review',
+      content,
+      rating ,   
+      bookId,
+      userId
+    });
+
+    res.status(201).json({
+      message: 'Review created successfully',
+      review
+    });
+  } catch (error) {
+    console.error('Error creating review:', error);
+    res.status(500).json({ message: 'Failed to create review' });
+  }
+};
+
+
 // Update an existing review
 exports.updateReview = async (req, res) => {
   try {
@@ -109,7 +144,9 @@ exports.deleteReview = async (req, res) => {
 
 exports.getReviewsByBook = async (req, res) => {
   try {
-    const reviews = await Review.find({ bookId: req.params.bookId });
+    const reviews = await Review.findAll({ 
+      where: {bookId: req.params.bookId }
+    });
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching reviews by book ID' });

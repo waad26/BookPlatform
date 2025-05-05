@@ -5,7 +5,7 @@ const authenticate = require('../../middleware/auth');
 
 // Routes
 router.get('/', reviewController.getAllReviews);
-router.post('/', authenticate, reviewController.createReview);
+router.post('/book/:bookId', authenticate, reviewController.createReviewForBook);
 router.put('/:id', authenticate, reviewController.updateReview);
 router.delete('/:id', authenticate, reviewController.deleteReview);
 router.get('/book/:bookId', reviewController.getReviewsByBook);
